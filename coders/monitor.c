@@ -6,7 +6,7 @@
 /*   By: aryahi <aryahi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 22:53:09 by aryahi            #+#    #+#             */
-/*   Updated: 2026/04/26 13:58:32 by aryahi           ###   ########.fr       */
+/*   Updated: 2026/04/30 23:10:23 by aryahi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,13 @@
 
 static int	check_coder_status(t_shared *shared, int *f_coders, int i)
 {
-	pthread_mutex_lock(&shared->coders[i].time_mutex);
+	pthread_mutex_lock(&shared->coders[i].coder_mutex);
 	if (get_current_time_in_ms()
 		- shared->coders[i].last_compile_start >= shared->time_to_burnout)
 	{
 		print_log(shared, shared->coders[i].id, "burned out");
 		set_sim_state(shared, false);
-		pthread_mutex_unlock(&shared->coders[i].time_mutex);
+		pthread_mutex_unlock(&shared->coders[i].coder_mutex);
 		pthread_mutex_lock(&shared->queue_mutex);
 		pthread_cond_broadcast(&shared->queue_cond);
 		pthread_mutex_unlock(&shared->queue_mutex);
@@ -28,7 +28,7 @@ static int	check_coder_status(t_shared *shared, int *f_coders, int i)
 	}
 	if (shared->coders[i].compile_count >= shared->number_of_compiles_required)
 		(*f_coders)++;
-	pthread_mutex_unlock(&shared->coders[i].time_mutex);
+	pthread_mutex_unlock(&shared->coders[i].coder_mutex);
 	return (0);
 }
 

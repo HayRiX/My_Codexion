@@ -6,7 +6,7 @@
 /*   By: aryahi <aryahi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 16:01:06 by aryahi            #+#    #+#             */
-/*   Updated: 2026/04/28 15:59:06 by aryahi           ###   ########.fr       */
+/*   Updated: 2026/04/30 23:10:23 by aryahi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,6 @@ static int	set_array(t_shared *shared, int n_coders)
 	if (!shared->dongles || !shared->cooldowns || !shared->coders
 		|| !shared->dongle_states || !shared->queue)
 		return (cleanup_memory(shared));
-	shared->queue_size = 0;
 	i = 0;
 	while (i < n_coders)
 		shared->dongle_states[i++] = 0;
@@ -101,7 +100,7 @@ static void	set_coder(t_shared *shared, int n_coders, int l_dongle,
 		shared->coders[i].id = i + 1;
 		shared->coders[i].compile_count = 0;
 		shared->coders[i].shared_env = shared;
-		pthread_mutex_init(&shared->coders[i].time_mutex, NULL);
+		pthread_mutex_init(&shared->coders[i].coder_mutex, NULL);
 		pthread_mutex_init(&shared->dongles[i], NULL);
 		shared->cooldowns[i++] = 0;
 	}
@@ -124,7 +123,6 @@ bool	init_shared_env(t_shared *shared, char **argv)
 	l_d = 0;
 	r_d = 0;
 	shared->simulation_state = true;
-	shared->total_finished_coders = 0;
 	pthread_mutex_init(&shared->queue_mutex, NULL);
 	pthread_mutex_init(&shared->print_mutex, NULL);
 	pthread_cond_init(&shared->queue_cond, NULL);
