@@ -6,7 +6,7 @@
 /*   By: aryahi <aryahi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 15:38:05 by aryahi            #+#    #+#             */
-/*   Updated: 2026/04/22 19:53:18 by aryahi           ###   ########.fr       */
+/*   Updated: 2026/05/01 00:56:58 by aryahi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,4 +59,14 @@ int	cleanup_memory(t_shared *shared)
 	if (shared->queue)
 		free(shared->queue);
 	return (-1);
+}
+
+bool has_finished_compiling(t_shared *shared, t_coder *coder)
+{
+	bool finished;
+
+	pthread_mutex_lock(&coder->coder_mutex);
+	finished = (coder->compile_count >= shared->number_of_compiles_required);
+	pthread_mutex_unlock(&coder->coder_mutex);
+	return (finished);
 }

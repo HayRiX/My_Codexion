@@ -6,7 +6,7 @@
 /*   By: aryahi <aryahi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 16:01:10 by aryahi            #+#    #+#             */
-/*   Updated: 2026/04/22 21:38:00 by aryahi           ###   ########.fr       */
+/*   Updated: 2026/05/01 00:57:39 by aryahi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,12 +61,14 @@ typedef struct s_coder
 	unsigned long long	ticket;
 	pthread_t			thread_id;
 
-	pthread_mutex_t		time_mutex;
+	pthread_mutex_t		coder_mutex;
 
 	t_shared			*shared_env;
 
 }						t_coder;
 
+bool					has_finished_compiling(t_shared *shared,
+							t_coder *coder);
 bool					can_take_dongles(t_coder *coder, long long now);
 bool					init_shared_env(t_shared *shared, char **argv);
 bool					get_sim_state(t_shared *shared);

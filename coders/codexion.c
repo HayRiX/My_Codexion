@@ -6,7 +6,7 @@
 /*   By: aryahi <aryahi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 16:01:15 by aryahi            #+#    #+#             */
-/*   Updated: 2026/04/24 19:44:38 by aryahi           ###   ########.fr       */
+/*   Updated: 2026/04/30 23:58:16 by aryahi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ int	main(int argc, char **argv)
 	i = -1;
 	while (++i < shared.number_of_coders)
 	{
-		pthread_mutex_destroy(&shared.coders[i].time_mutex);
+		pthread_mutex_destroy(&shared.coders[i].coder_mutex);
 		pthread_mutex_destroy(&shared.dongles[i]);
 	}
 	pthread_mutex_destroy(&shared.print_mutex);

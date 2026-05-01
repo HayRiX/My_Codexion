@@ -6,7 +6,7 @@
 /*   By: aryahi <aryahi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 15:37:13 by aryahi            #+#    #+#             */
-/*   Updated: 2026/04/26 14:10:55 by aryahi           ###   ########.fr       */
+/*   Updated: 2026/05/01 00:12:49 by aryahi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,8 +58,6 @@ bool	can_take_dongles(t_coder *coder, long long now)
 	t_shared	*s;
 
 	s = coder->shared_env;
-	if (s->simulation_state == false)
-		return (true);
 	if (s->dongle_states[coder->min_dongle] == 1
 		|| s->dongle_states[coder->max_dongle] == 1
 		|| now < s->cooldowns[coder->min_dongle]
