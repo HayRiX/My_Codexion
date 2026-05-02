@@ -6,13 +6,13 @@
 /*   By: aryahi <aryahi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 15:34:07 by aryahi            #+#    #+#             */
-/*   Updated: 2026/05/01 00:58:39 by aryahi           ###   ########.fr       */
+/*   Updated: 2026/05/02 18:21:20 by aryahi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-static bool	wait_for_dongles(t_coder *coder, t_shared *shared)
+static bool	wait_for_dongles(t_coder *coder, t_shared *shared, long long now)
 {
 	while (1)
 	{
@@ -22,10 +22,13 @@ static bool	wait_for_dongles(t_coder *coder, t_shared *shared)
 			pthread_mutex_unlock(&shared->queue_mutex);
 			return (false);
 		}
-		if (can_take_dongles(coder, get_current_time_in_ms()))
+		now = get_current_time_in_ms();
+		if (can_take_dongles(coder, now))
 			break ;
 		if (shared->dongle_states[coder->min_dongle] == 0
-			&& shared->dongle_states[coder->max_dongle] == 0)
+			&& shared->dongle_states[coder->max_dongle] == 0
+			&& (now < shared->cooldowns[coder->min_dongle]
+			|| now < shared->cooldowns[coder->max_dongle]))
 		{
 			pthread_mutex_unlock(&shared->queue_mutex);
 			usleep(500);
@@ -41,7 +44,7 @@ static bool	acquire_dongles(t_coder *coder, t_shared *shared)
 {
 	pthread_mutex_lock(&shared->queue_mutex);
 	enqueue_coder(shared, coder);
-	if (!wait_for_dongles(coder, shared))
+	if (!wait_for_dongles(coder, shared, 0))
 		return (false);
 	dequeue_coder(shared, coder);
 	shared->dongle_states[coder->min_dongle] = 1;
@@ -73,8 +76,8 @@ static void	compile_and_release(t_coder *coder, t_shared *shared)
 		+ shared->dongle_cooldown;
 	shared->dongle_states[coder->min_dongle] = 0;
 	shared->dongle_states[coder->max_dongle] = 0;
-	pthread_mutex_unlock(&shared->queue_mutex);
 	pthread_cond_broadcast(&shared->queue_cond);
+	pthread_mutex_unlock(&shared->queue_mutex);
 }
 
 static void	*handle_lone_coder(t_coder *coder, t_shared *shared)
@@ -104,7 +107,7 @@ void	*coder_routine(void *arg)
 	while (get_sim_state(shared) == true)
 	{
 		if (has_finished_compiling(shared, coder))
-			break;
+			break ;
 		if (!acquire_dongles(coder, shared))
 			break ;
 		compile_and_release(coder, shared);
