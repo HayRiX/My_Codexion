@@ -6,13 +6,13 @@
 /*   By: aryahi <aryahi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 16:01:15 by aryahi            #+#    #+#             */
-/*   Updated: 2026/04/30 23:58:16 by aryahi           ###   ########.fr       */
+/*   Updated: 2026/05/11 18:27:25 by aryahi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-int	start_simulation(t_shared *shared, int i, int j)
+static int	start_simulation(t_shared *shared, int i, int j)
 {
 	pthread_mutex_lock(&shared->queue_mutex);
 	shared->simulation_start_time = get_current_time_in_ms();
@@ -27,7 +27,6 @@ int	start_simulation(t_shared *shared, int i, int j)
 			j = -1;
 			while (++j < i)
 				pthread_join(shared->coders[j].thread_id, NULL);
-			cleanup_memory(shared);
 			return (0);
 		}
 		i++;

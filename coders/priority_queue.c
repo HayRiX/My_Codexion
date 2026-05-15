@@ -6,7 +6,7 @@
 /*   By: aryahi <aryahi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 15:35:41 by aryahi            #+#    #+#             */
-/*   Updated: 2026/04/30 23:12:00 by aryahi           ###   ########.fr       */
+/*   Updated: 2026/05/15 08:33:58 by aryahi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ int	has_higher_priority(t_shared *s, int i, int j)
 		return (1);
 	if (c1->last_compile_start > c2->last_compile_start)
 		return (0);
-	return (c1->id > c2->id);
+	return (c1->id < c2->id);
 }
 
 void	heapify_up(t_shared *s, int index)
@@ -81,7 +81,8 @@ void	enqueue_coder(t_shared *shared, t_coder *coder)
 	coder->ticket = shared->ticket_counter++;
 	shared->queue[shared->queue_size] = coder;
 	shared->queue_size++;
-	heapify_up(shared, shared->queue_size - 1);
+	if (shared->scheduler == 1)
+		heapify_up(shared, shared->queue_size - 1);
 }
 
 void	dequeue_coder(t_shared *shared, t_coder *coder)
@@ -97,11 +98,23 @@ void	dequeue_coder(t_shared *shared, t_coder *coder)
 	}
 	if (i == shared->queue_size)
 		return ;
-	shared->queue[i] = shared->queue[shared->queue_size - 1];
-	shared->queue_size--;
-	if (i < shared->queue_size)
+	if (shared->scheduler == 1)
 	{
-		heapify_up(shared, i);
-		heapify_down(shared, i);
+		shared->queue[i] = shared->queue[shared->queue_size - 1];
+		shared->queue_size--;
+		if (i < shared->queue_size)
+		{
+			heapify_up(shared, i);
+			heapify_down(shared, i);
+		}
+	}
+	else
+	{
+		while (i < shared->queue_size - 1)
+		{
+			shared->queue[i] = shared->queue[i + 1];
+			i++;
+		}
+		shared->queue_size--;
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: aryahi <aryahi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 15:38:05 by aryahi            #+#    #+#             */
-/*   Updated: 2026/05/01 17:40:52 by aryahi           ###   ########.fr       */
+/*   Updated: 2026/05/15 08:33:08 by aryahi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void	ft_usleep(long long time_to_sleep, t_shared *shared)
 	{
 		if (get_sim_state(shared) == false)
 			break ;
-		usleep(500);
+		usleep(50);
 	}
 }
 

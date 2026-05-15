@@ -6,7 +6,7 @@
 /*   By: aryahi <aryahi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 16:01:10 by aryahi            #+#    #+#             */
-/*   Updated: 2026/05/01 00:57:39 by aryahi           ###   ########.fr       */
+/*   Updated: 2026/05/10 16:48:07 by aryahi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,6 @@ bool					can_take_dongles(t_coder *coder, long long now);
 bool					init_shared_env(t_shared *shared, char **argv);
 bool					get_sim_state(t_shared *shared);
 int						has_higher_priority(t_shared *s, int i, int j);
-int						start_simulation(t_shared *shared, int i, int j);
 int						cleanup_memory(t_shared *shared);
 long long				get_current_time_in_ms(void);
 void					print_log(t_shared *shared, int coder_id, char *status);

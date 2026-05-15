@@ -6,7 +6,7 @@
 /*   By: aryahi <aryahi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 16:01:06 by aryahi            #+#    #+#             */
-/*   Updated: 2026/04/30 23:10:23 by aryahi           ###   ########.fr       */
+/*   Updated: 2026/05/11 18:41:50 by aryahi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,10 @@ static int	set_array(t_shared *shared, int n_coders)
 	shared->queue = malloc(sizeof(t_coder *) * n_coders);
 	if (!shared->dongles || !shared->cooldowns || !shared->coders
 		|| !shared->dongle_states || !shared->queue)
+	{
+		printf("ERROR: Mallocing memory error\n");
 		return (cleanup_memory(shared));
+	}
 	i = 0;
 	while (i < n_coders)
 		shared->dongle_states[i++] = 0;
