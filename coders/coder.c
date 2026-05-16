@@ -6,7 +6,7 @@
 /*   By: aryahi <aryahi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 15:34:07 by aryahi            #+#    #+#             */
-/*   Updated: 2026/05/15 08:41:42 by aryahi           ###   ########.fr       */
+/*   Updated: 2026/05/16 17:10:12 by aryahi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,8 @@ void	*coder_routine(void *arg)
 	pthread_mutex_unlock(&coder->coder_mutex);
 	if (shared->number_of_coders == 1)
 		return (handle_lone_coder(coder, shared));
+	if (coder->id % 2 == 0)
+		usleep(500);
 	while (get_sim_state(shared) == true)
 	{
 		if (has_finished_compiling(shared, coder))

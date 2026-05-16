@@ -6,7 +6,7 @@
 /*   By: aryahi <aryahi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 15:37:13 by aryahi            #+#    #+#             */
-/*   Updated: 2026/05/01 00:12:49 by aryahi           ###   ########.fr       */
+/*   Updated: 2026/05/16 17:08:34 by aryahi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,7 @@ static bool	has_conflict(t_shared *s, t_coder *coder, int my)
 			if ((o->min_dongle == coder->min_dongle
 					|| o->max_dongle == coder->max_dongle
 					|| o->min_dongle == coder->max_dongle
-					|| o->max_dongle == coder->min_dongle)
-				&& s->dongle_states[o->min_dongle] == 0
-				&& s->dongle_states[o->max_dongle] == 0)
+					|| o->max_dongle == coder->min_dongle))
 				return (true);
 		}
 	}
