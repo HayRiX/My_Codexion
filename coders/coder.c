@@ -6,7 +6,7 @@
 /*   By: aryahi <aryahi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 15:34:07 by aryahi            #+#    #+#             */
-/*   Updated: 2026/05/16 17:10:12 by aryahi           ###   ########.fr       */
+/*   Updated: 2026/05/16 18:26:58 by aryahi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,41 +14,52 @@
 
 static bool	wait_for_dongles(t_coder *coder, t_shared *shared, long long now)
 {
-	while (1)
+	struct timespec	ts;
+	long long		c_end;
+
+	while (get_sim_state(shared))
 	{
-		if (get_sim_state(shared) == false)
-		{
-			dequeue_coder(shared, coder);
-			pthread_mutex_unlock(&shared->queue_mutex);
-			return (false);
-		}
 		now = get_current_time_in_ms();
 		if (can_take_dongles(coder, now))
-			break ;
+			return (true);
+		c_end = shared->cooldowns[coder->min_dongle];
+		if (shared->cooldowns[coder->max_dongle] > c_end)
+			c_end = shared->cooldowns[coder->max_dongle];
 		if (shared->dongle_states[coder->min_dongle] == 0
-			&& shared->dongle_states[coder->max_dongle] == 0
-			&& (now < shared->cooldowns[coder->min_dongle]
-				|| now < shared->cooldowns[coder->max_dongle]))
+			&& shared->dongle_states[coder->max_dongle] == 0 && now < c_end)
 		{
-			pthread_mutex_unlock(&shared->queue_mutex);
-			usleep(50);
-			pthread_mutex_lock(&shared->queue_mutex);
+			ts.tv_sec = (c_end / 1000);
+			ts.tv_nsec = ((c_end % 1000) * 1000000);
+			pthread_cond_timedwait(&shared->queue_cond, &shared->queue_mutex,
+				&ts);
 		}
 		else
 			pthread_cond_wait(&shared->queue_cond, &shared->queue_mutex);
 	}
-	return (true);
+	dequeue_coder(shared, coder);
+	pthread_mutex_unlock(&shared->queue_mutex);
+	return (false);
 }
 
 static bool	acquire_dongles(t_coder *coder, t_shared *shared)
 {
 	pthread_mutex_lock(&shared->queue_mutex);
 	enqueue_coder(shared, coder);
+	if (shared->ticket_counter < (unsigned long long)shared->number_of_coders)
+	{
+		while (shared->ticket_counter
+			< (unsigned long long)shared->number_of_coders)
+			pthread_cond_wait(&shared->queue_cond, &shared->queue_mutex);
+	}
+	else if (shared->ticket_counter
+		== (unsigned long long)shared->number_of_coders)
+		pthread_cond_broadcast(&shared->queue_cond);
 	if (!wait_for_dongles(coder, shared, 0))
 		return (false);
 	dequeue_coder(shared, coder);
 	shared->dongle_states[coder->min_dongle] = 1;
 	shared->dongle_states[coder->max_dongle] = 1;
+	pthread_cond_broadcast(&shared->queue_cond);
 	pthread_mutex_unlock(&shared->queue_mutex);
 	pthread_mutex_lock(&shared->dongles[coder->min_dongle]);
 	pthread_mutex_lock(&shared->dongles[coder->max_dongle]);
@@ -97,13 +108,8 @@ void	*coder_routine(void *arg)
 
 	coder = (t_coder *)arg;
 	shared = coder->shared_env;
-	pthread_mutex_lock(&coder->coder_mutex);
-	coder->last_compile_start = get_current_time_in_ms();
-	pthread_mutex_unlock(&coder->coder_mutex);
 	if (shared->number_of_coders == 1)
 		return (handle_lone_coder(coder, shared));
-	if (coder->id % 2 == 0)
-		usleep(500);
 	while (get_sim_state(shared) == true)
 	{
 		if (has_finished_compiling(shared, coder))

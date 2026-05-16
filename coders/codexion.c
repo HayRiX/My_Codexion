@@ -6,7 +6,7 @@
 /*   By: aryahi <aryahi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/19 16:01:15 by aryahi            #+#    #+#             */
-/*   Updated: 2026/05/11 18:27:25 by aryahi           ###   ########.fr       */
+/*   Updated: 2026/05/16 17:43:43 by aryahi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ static int	start_simulation(t_shared *shared, int i, int j)
 	while (i < shared->number_of_coders)
 	{
 		shared->coders[i].last_compile_start = shared->simulation_start_time;
+		shared->coders[i].ticket = i;
 		if (pthread_create(&shared->coders[i].thread_id, NULL, &coder_routine,
 				&shared->coders[i]))
 		{

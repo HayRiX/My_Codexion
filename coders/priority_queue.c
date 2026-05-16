@@ -6,7 +6,7 @@
 /*   By: aryahi <aryahi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 15:35:41 by aryahi            #+#    #+#             */
-/*   Updated: 2026/05/15 08:33:58 by aryahi           ###   ########.fr       */
+/*   Updated: 2026/05/16 18:17:30 by aryahi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,11 +78,14 @@ void	heapify_down(t_shared *s, int index)
 
 void	enqueue_coder(t_shared *shared, t_coder *coder)
 {
+	// if (coder->compile_count == 0)
+	// 	coder->ticket = coder->id;
+	// else
+	// 	coder->ticket = shared->ticket_counter;
 	coder->ticket = shared->ticket_counter++;
 	shared->queue[shared->queue_size] = coder;
 	shared->queue_size++;
-	if (shared->scheduler == 1)
-		heapify_up(shared, shared->queue_size - 1);
+	heapify_up(shared, shared->queue_size - 1);
 }
 
 void	dequeue_coder(t_shared *shared, t_coder *coder)
@@ -98,23 +101,11 @@ void	dequeue_coder(t_shared *shared, t_coder *coder)
 	}
 	if (i == shared->queue_size)
 		return ;
-	if (shared->scheduler == 1)
+	shared->queue[i] = shared->queue[shared->queue_size - 1];
+	shared->queue_size--;
+	if (i < shared->queue_size)
 	{
-		shared->queue[i] = shared->queue[shared->queue_size - 1];
-		shared->queue_size--;
-		if (i < shared->queue_size)
-		{
-			heapify_up(shared, i);
-			heapify_down(shared, i);
-		}
-	}
-	else
-	{
-		while (i < shared->queue_size - 1)
-		{
-			shared->queue[i] = shared->queue[i + 1];
-			i++;
-		}
-		shared->queue_size--;
+		heapify_up(shared, i);
+		heapify_down(shared, i);
 	}
 }
