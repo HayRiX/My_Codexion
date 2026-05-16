@@ -1,9 +1,7 @@
-*This project has been created as part of the 42 curriculum by [aryahi]*
-
-# Codexion: High-Performance Resource Orchestration 
+*This project has been created as part of the 42 curriculum by aryahi*
 
 ## Description
-**Codexion** is an advanced concurrency challenge inspired by the classic Dining Philosophers problem, tailored for the 42 Network environment. The goal of this project is to simulate a high-pressure coding hub where multiple **Coders** (threads) compete for a limited set of **USB Dongles** (shared resources) to compile their code. The project requires strict adherence to deterministic scheduling algorithms (FIFO and EDF) using POSIX threads, while mathematically preventing deadlocks, starvation, and data races. 
+**Codexion** is an advanced concurrency challenge inspired by the classic Dining Philosophers problem, tailored for the 42 Network environment. The goal of this project is to simulate a high-pressure coding hub where multiple **Coders** (threads) compete for a limited set of **USB Dongles** (shared resources) to compile their code. The project requires strict adherence to deterministic scheduling algorithms (FIFO and EDF) using POSIX threads, while mathematically preventing deadlocks, starvation, and data races.
 
 This specific implementation goes beyond basic requirements by utilizing a **Min-Heap (Priority Queue)** for $O(\log N)$ scheduling efficiency, ensuring robust performance even under extreme stress tests (e.g., 200+ concurrent threads).
 
@@ -23,7 +21,7 @@ The program requires 8 specific arguments to run the simulation:
 
 **Example Usage:**
 ```bash
-./codexion 5 800 200 200 200 7 10 edf
+./codexion 8 610 300 100 100 2 0 edf
 ```
 *Note: The `scheduler_type` must be either `fifo` or `edf`.*
 
@@ -34,15 +32,17 @@ Our solution rigorously addresses all classic concurrency pitfalls:
 * **Cooldown Handling:** Dongle availability isn't just binary. We track cooldown timestamps in a dedicated array. A coder cannot acquire a dongle if the current time is less than the dongle's calculated cooldown threshold.
 * **Precise Burnout Detection:** A separate, dedicated Monitor thread continuously polls the `last_compile_start` timestamp of each coder using a granular `coder_mutex` to ensure no coder burns out unnoticed.
 * **Log Serialization:** All terminal outputs are funneled through a global `print_mutex` to ensure that timestamps remain chronological and messages are never garbled or interleaved.
-* **Thundering Herd & Lock Contention Mitigation:** Prevented CPU spikes and excessive lock contention by optimizing the Monitor thread. Instead of spamming `pthread_cond_broadcast` every millisecond, the monitor only signals on actual state changes. Additionally, waiting threads employ intelligent microsleeps (`usleep`) when waiting strictly for cooldowns, ensuring 0% CPU waste during idle blocking.
+* **Thundering Herd & Lock Contention Mitigation:** Prevented CPU spikes and excessive lock contention by optimizing the Monitor thread. Instead of spamming `pthread_cond_broadcast` every millisecond, the monitor only signals on actual state changes. Additionally, waiting threads employ intelligent conditional timed waits (`pthread_cond_timedwait`) when waiting strictly for cooldowns, ensuring 0% CPU waste during idle blocking.
 * **Starvation Cascade Prevention:** Modified the `has_conflict` logic to evaluate the actual lock state (`dongle_states`) of higher-priority threads. A coder will only yield priority if the higher-priority coder is genuinely capable of acquiring resources, completely breaking the "chain of waiting" and allowing maximum parallel throughput.
 
 ## Thread Synchronization Mechanisms
 To coordinate access to shared resources and ensure thread-safe communication, we utilized specific POSIX threading primitives:
-* **`pthread_mutex_t`:** * `dongles[i]`: Represents the physical USB dongles. Locked when a coder acquires the resource.
+* **`pthread_mutex_t`:**
+  * `dongles[i]`: Represents the physical USB dongles. Locked when a coder acquires the resource.
   * `queue_mutex`: Protects the Min-Heap priority queue, the simulation state, and the dongle states. This ensures that scheduling operations and state reads/writes (via Getters/Setters) never result in Data Races.
   * `coder_mutex`: A per-coder mutex that strictly protects the `last_compile_start` and `compile_count` variables from being read by the Monitor while being updated by the Coder.
-* **`pthread_cond_t`:** * `queue_cond`: Instead of inefficient "busy-waiting" (spinlocks), coders use `pthread_cond_wait` to sleep peacefully. When a coder drops their dongles, or when the Monitor detects a burnout/completion, a `pthread_cond_broadcast` is fired to awaken sleeping threads immediately, allowing for rapid state evaluation and clean exits.
+* **`pthread_cond_t`:**
+  * `queue_cond`: Instead of inefficient "busy-waiting" (spinlocks), coders use `pthread_cond_wait` and `pthread_cond_timedwait` to sleep peacefully. When a coder drops their dongles, or when the Monitor detects a burnout/completion, a `pthread_cond_broadcast` is fired to awaken sleeping threads immediately, allowing for rapid state evaluation and clean exits.
 
 ## Profiling & Memory Safety
 The architecture has been rigorously tested to handle extreme concurrency loads without memory leaks or race conditions.
@@ -56,7 +56,6 @@ The architecture has been rigorously tested to handle extreme concurrency loads 
 * Operating Systems Concepts (Silberschatz) - specifically chapters on Deadlocks and Process Synchronization.
 
 **AI Usage:**
-Artificial Intelligence (Claude 3.5 Sonnet / Gemini Advanced) was utilized during the development of this project for the following specific tasks:
-1. **Refactoring & Optimization:** Transforming the initial $O(N^2)$ Bubble Sort scheduling logic into a high-performance $O(\log N)$ Binary Min-Heap (`heapify_up` and `heapify_down`).
-2. **Data Race Debugging:** Analyzing `ThreadSanitizer` reports to identify unprotected reads of the `simulation_state` boolean, leading to the implementation of thread-safe Getter/Setter wrappers.
-3. **Norminette Compliance:** Assisting in splitting large functions (like `can_take_dongles`) into smaller static helper functions to strictly adhere to the 42 Network's 25-line limit without breaking the logic.
+Artificial Intelligence was utilized during the development of this project for the following specific tasks:
+1. **Debugging:** Notifieting the learner of any hidden or difficult problems he missed him, with certain functions so they can fix them themselves.
+2. **Norminette Compliance:** Some suggestions to learner for norminette
