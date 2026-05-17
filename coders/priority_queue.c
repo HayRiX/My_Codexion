@@ -6,7 +6,7 @@
 /*   By: aryahi <aryahi@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 15:35:41 by aryahi            #+#    #+#             */
-/*   Updated: 2026/05/16 18:17:30 by aryahi           ###   ########.fr       */
+/*   Updated: 2026/05/17 16:51:18 by aryahi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,11 +78,12 @@ void	heapify_down(t_shared *s, int index)
 
 void	enqueue_coder(t_shared *shared, t_coder *coder)
 {
-	// if (coder->compile_count == 0)
-	// 	coder->ticket = coder->id;
-	// else
-	// 	coder->ticket = shared->ticket_counter;
-	coder->ticket = shared->ticket_counter++;
+	if (coder->compile_count == 0)
+		coder->ticket = coder->id;
+	else
+		coder->ticket = shared->ticket_counter;
+	shared->ticket_counter++;
+	// coder->ticket = shared->ticket_counter++;
 	shared->queue[shared->queue_size] = coder;
 	shared->queue_size++;
 	heapify_up(shared, shared->queue_size - 1);
